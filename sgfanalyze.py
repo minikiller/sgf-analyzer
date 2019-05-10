@@ -8,7 +8,7 @@ from yaml import load
 
 import annotations
 import settings
-from bot_engines import LeelaCLI, LeelaZeroCLI
+from leelazero import LeelaZero
 from log import logger, log_stream
 from sgflib import SGFParser, Node, Property
 from utils import convert_position
@@ -78,19 +78,15 @@ class BotAnalyzer:
         self.all_stats = {}
         self.all_move_lists = {}
 
-    def factory(self):
+    def get_leela_zero(self):
 
         kwargs = {'board_size': self.board_size,
                   'komi': self.komi,
                   'handicap': self.handicap}
-        bot_settings = BOTS[self._bot_config]
-        kwargs.update(bot_settings)
 
-        if bot_settings['bot_type'] == 'leela':
-            return LeelaCLI(**kwargs)
+        kwargs.update(BOTS[self._bot_config])
 
-        elif bot_settings['bot_type'] == 'leela-zero':
-            return LeelaZeroCLI(**kwargs)
+        return LeelaZero(**kwargs)
 
     @property
     def board_size(self):
@@ -233,7 +229,7 @@ class BotAnalyzer:
         return mv
 
     def do_analyze(self):
-        ckpt_hash = f"{self.bot.history_hash()}_{self.bot.time_per_move}_sec"
+        ckpt_hash = f"{self.bot._history_hash()}_{self.bot.time_per_move}_sec"
         ckpt_fn = os.path.join(self.base_dir, ckpt_hash)
 
         if os.path.exists(ckpt_fn):
@@ -241,7 +237,6 @@ class BotAnalyzer:
             with open(ckpt_fn, 'rb') as ckpt_file:
                 stats, move_list = pickle.load(ckpt_file)
         else:
-            self.bot.clear_board()
             self.bot.go_to_position()
             stats, move_list = self.bot.analyze()
             with open(ckpt_fn, 'wb') as ckpt_file:
@@ -281,7 +276,8 @@ class BotAnalyzer:
         logger.info(f"Executing analysis for %d moves", len(self.moves_to_analyze))
         moves_count = 0
         self.cursor.reset()
-        self.bot = self.factory()
+
+        self.bot = self.get_leela_zero()
         self.bot.time_per_move = CONFIG['analyze_time']
         self.bot.start()
         # analyze main line, without variations
@@ -513,7 +509,7 @@ class BotAnalyzer:
 
             stats, move_list = self.all_stats[move_num], self.all_move_lists[move_num]
 
-            if 'bookmoves' in stats or len(move_list) <= 0:
+            if len(move_list) <= 0:
                 continue
 
             self.do_variations(move_num)
