@@ -23,6 +23,16 @@ BEST_REGEX = r'([0-9]+) visits, ' \
              r'score (\-? ?[0-9]+\.[0-9]+)\% \(from \-? ?[0-9]+\.[0-9]+\%\) ' \
              r'PV: (.*)'
 
+turn = 'black'
+
+
+def get_turn():
+    global turn
+
+    x = turn
+    turn = 'white' if turn == 'black' else 'black'
+    return x
+
 
 def str_to_percent(value: str):
     return 0.01 * float(value.strip())
@@ -167,3 +177,16 @@ class LeelaZero(GTPConsole):
 
     def _get_winrate(self, wr):
         return (1.0 - wr) if self.whose_turn() == "white" else wr
+
+    def play_move(self, pos):
+        c = get_turn()
+        # self.add_move_to_history(turn, pos)
+        self.process.stdin.write(f"play {c} {pos}\n")
+        self.process.stdin.flush()
+
+    def genmove_and_play(self, move):
+        self.play_move(move)
+        out, err = self._generate_move()
+        move = out[0].rstrip('\n').split(' ')[1]
+        self.play_move(move)
+        return move

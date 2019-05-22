@@ -12,7 +12,7 @@ config:
 
   stop_on_winrate: 0.80       # Stops analysis on this winrate drop
 
-  analyze_time: 120            # How many seconds to use per game moves analysis (default=60)
+  analyze_time: 5            # How many seconds to use per game moves analysis (default=60)
   analyze_threshold: 0.025     # Display analysis on moves losing at least this much of win rate (default=0.05)
 
   variations_threshold: 0.05   # Explore variations on moves losing at least this much of win rate (default=0.05)
@@ -31,18 +31,6 @@ bots:
     executable: FULL_PATH_TO_EXECUTABLE  # Python requires forward slashes '/' in path
     arguments:  ANY_VALID_BOT_ARGUMENT  # for more info see bot help: leela --help or leelaz --help
 
-
-  leela:
-    bot_type: leela
-    executable: /home/gelya/PycharmProjects/sgf-analyzer/bots/Leela/leela_0110_linux_x64
-    arguments: --gtp --noponder  # Always leave --gtp --noponder
-
-  leela-opencl:
-    bot_type: leela
-    executable: /home/gelya/PycharmProjects/sgf-analyzer/bots/Leela/leela_0110_linux_x64_opencl
-    arguments: --gtp --noponder --nobook
-
   leela-zero:  # LeelaZero also requires weights
-    bot_type: leela-zero
-    executable: /home/gelya/PycharmProjects/leela-zero/src/leelaz
-    arguments: --gtp --noponder --weights /home/gelya/PycharmProjects/leela-zero/weights.txt
+    executable: /home/alex/PycharmProjects/leela_zero_analyzer/leelaz
+    arguments: --gtp --noponder --weights /home/alex/PycharmProjects/leela_zero_analyzer/best-network
