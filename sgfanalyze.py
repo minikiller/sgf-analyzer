@@ -325,9 +325,10 @@ class BotAnalyzer:
                                    previous_player, convert_position(self.board_size, this_move), -delta * 100)
 
                 next_game_move = self.next_move_pos()
-
+                
+                prev_winrate = self.best_moves[move_num-1]["winrate"] if (move_num - 1) in self.best_moves else None
                 annotations.annotate_sgf(self.cursor,
-                                         annotations.format_winrate(stats, move_list, self.board_size, next_game_move),
+                                         annotations.format_winrate(stats, move_list, self.board_size, next_game_move, prev_winrate),
                                          [], [])
 
                 if has_prev and ((move_num - 1) in self.moves_to_analyze and -delta > CONFIG['analyze_threshold'] or (
