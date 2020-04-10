@@ -2,10 +2,46 @@ from sgflib import Property
 from utils import convert_position, is_pass
 
 
-def format_winrate(stats, move_list, board_size, next_game_move):
-    comment = ""
+def get_winrate_comment(winrate, prev_winrate=None):
+    prev_winrate = prev_winrate or winrate
+
+    if winrate > 0.85:
+        return "Black is winning"
+
+    if winrate > 0.75:
+        if prev_winrate < winrate:
+            return "Black is taking the lead"
+        else:
+            return "White is coming back"
+
+    if winrate > 0.65:
+        if prev_winrate < winrate:
+            return "Black is slightly ahead"
+        else:
+            return "White is coming back"
+
+    if winrate > 0.35:
+        return "The game is even"
+
+    if winrate > 0.25:
+        if prev_winrate < winrate:
+            return "Black is coming back"
+        else:
+            return "White is slightly ahead"
+
+    if winrate > 0.15:
+        if prev_winrate < winrate:
+            return "Black is coming back"
+        else:
+            return "White is taking the lead"
+    else:
+        return "White is winning"
+
+
+def format_winrate(stats, move_list, board_size, next_game_move, prev_winrate=None):
+    
     if 'winrate' in stats:
-        comment += "Overall black win%%: %.2f%%\n" % (stats['winrate'] * 100)
+        comment += get_winrate_comment(stats["winrate"], prev_winrate)
     else:
         comment += "Overall black win%: not computed (Leela still in opening book)\n"
 
