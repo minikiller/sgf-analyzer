@@ -2,6 +2,8 @@ import argparse
 import hashlib
 import os
 import pickle
+import requests
+import json
 
 import numpy as np
 from yaml import load
@@ -33,7 +35,8 @@ def retry_analysis(restarts):
                 except Exception:
                     if restarts < i:
                         raise
-                    logger.error("Exception during analysis, retrying analysis...")
+                    logger.error(
+                        "Exception during analysis, retrying analysis...")
 
         return try_analysis
 
@@ -43,10 +46,12 @@ def retry_analysis(restarts):
 def parse_cmd_line():
     parser = argparse.ArgumentParser(argument_default=None)
 
-    parser.add_argument("path_to_sgf", nargs='+', help="List of SGF-files to analyze.")
+    parser.add_argument("path_to_sgf", nargs='+',
+                        help="List of SGF-files to analyze.")
     parser.add_argument('-b', '--bot', default=BOTS['default'],
                         dest='bot', help="Settings from config.yaml to use.")
-    parser.add_argument('--no-vars', dest='no_variations', action='store_true', help="Skip variations analysis.")
+    parser.add_argument('--no-vars', dest='no_variations',
+                        action='store_true', help="Skip variations analysis.")
 
     return parser.parse_args()
 
@@ -98,7 +103,8 @@ class BotAnalyzer:
         if node_boardsize:
             board_size = int(node_boardsize.data[0])
             if board_size != 19:
-                logger.warning("Board size is not 19 so analysis could be very inaccurate.")
+                logger.warning(
+                    "Board size is not 19 so analysis could be very inaccurate.")
         else:
             board_size = 19
 
@@ -148,6 +154,21 @@ class BotAnalyzer:
         with open(path_to_save, mode='w', encoding='utf-8') as f:
             f.write(str(self.sgf_data))
 
+    def send_to_bibiweiqi(self):
+        file_name, file_ext = os.path.splitext(self._path_to_sgf)
+        path_to_save = f"{file_name}_{self._bot_config}{file_ext}"
+        kifu_id = path_to_save.split("_")[1]
+        logger.info("kifu id is {}".format(kifu_id))
+        url = 'https://bibiweiqi.com:5000/kifus/analyse/'+kifu_id
+        with open(path_to_save, "r") as f:
+            data = f.read()
+        d = {'analyse_data': data}
+        r = requests.post(url, data=json.dumps(d), verify=False, headers={
+                          "Content-Type": "application/json"})
+        # extracting data in json format
+        data = r.json()
+        logger.info("send data to bibiweiqi result is ".format(data.message))
+
     def graph_winrates(self):
         import matplotlib
         matplotlib.use('Agg')
@@ -171,13 +192,16 @@ class BotAnalyzer:
 
         # fill graph with horizontal coordinate lines, step 0.25
         for xc in np.arange(0, 1, 0.025):
-            plt.axhline(xc, first_move_num, last_move_num, linewidth=0.04, color='0.7')
+            plt.axhline(xc, first_move_num, last_move_num,
+                        linewidth=0.04, color='0.7')
 
         # add single central horizontal line
-        plt.axhline(0.50, first_move_num, last_move_num, linewidth=0.3, color='0.2')
+        plt.axhline(0.50, first_move_num, last_move_num,
+                    linewidth=0.3, color='0.2')
 
         # main graph of win rate changes
-        plt.plot(x, y, color='#ff0000', marker='.', markersize=2.5, linewidth=0.6)
+        plt.plot(x, y, color='#ff0000', marker='.',
+                 markersize=2.5, linewidth=0.6)
 
         # set range limits for x and y axes
         plt.xlim(0, last_move_num)
@@ -254,7 +278,8 @@ class BotAnalyzer:
     def prepare(self):
         """ Stores moves to analyze and wipes comments if needed"""
         base_hash = hashlib.md5(str(self.sgf_data).encode()).hexdigest()
-        self.base_dir = os.path.join(settings.CHECKPOINTS_DIR.format(self._bot_config), base_hash)
+        self.base_dir = os.path.join(
+            settings.CHECKPOINTS_DIR.format(self._bot_config), base_hash)
         os.makedirs(self.base_dir, exist_ok=True)
 
         move_num = -1
@@ -280,7 +305,8 @@ class BotAnalyzer:
         has_prev = False
         previous_player = None
 
-        logger.info(f"Executing analysis for %d moves", len(self.moves_to_analyze))
+        logger.info(f"Executing analysis for %d moves",
+                    len(self.moves_to_analyze))
         moves_count = 0
         self.cursor.reset()
         self.bot = self.factory()
@@ -311,13 +337,16 @@ class BotAnalyzer:
 
                 if 'winrate' in stats and (move_num - 1) in self.best_moves:
                     if this_move != self.best_moves[move_num - 1]['pos']:
-                        delta = stats['winrate'] - self.best_moves[move_num - 1]['winrate']
-                        delta = min(0.0, (-delta if self.bot.whose_turn() == "black" else delta))
+                        delta = stats['winrate'] - \
+                            self.best_moves[move_num - 1]['winrate']
+                        delta = min(
+                            0.0, (-delta if self.bot.whose_turn() == "black" else delta))
 
                     if -delta > CONFIG['analyze_threshold']:
                         (delta_comment, delta_lb_values) = annotations.format_delta_info(delta, this_move,
                                                                                          self.board_size)
-                        annotations.annotate_sgf(self.cursor, delta_comment, delta_lb_values, [])
+                        annotations.annotate_sgf(
+                            self.cursor, delta_comment, delta_lb_values, [])
 
                 if has_prev and delta <= -CONFIG['variations_threshold']:
                     self.moves_to_variations[move_num - 1] = True
@@ -329,7 +358,8 @@ class BotAnalyzer:
                 next_game_move = self.next_move_pos()
 
                 annotations.annotate_sgf(self.cursor,
-                                         annotations.format_winrate(stats, move_list, self.board_size, next_game_move),
+                                         annotations.format_winrate(
+                                             stats, move_list, self.board_size, next_game_move),
                                          [], [])
 
                 if has_prev and ((move_num - 1) in self.moves_to_analyze and -delta > CONFIG['analyze_threshold'] or (
@@ -338,7 +368,8 @@ class BotAnalyzer:
                         prev_stats, filter_move_list(prev_move_list), this_move, self.board_size)
                     self.cursor.previous()
                     # adding comment to sgf with suggested alternative variations
-                    annotations.annotate_sgf(self.cursor, analysis_comment, lb_values, tr_values)
+                    annotations.annotate_sgf(
+                        self.cursor, analysis_comment, lb_values, tr_values)
                     self.cursor.next()
 
                 prev_stats = stats
@@ -354,7 +385,8 @@ class BotAnalyzer:
                     break
 
                 moves_count += 1
-                logger.info("Analysis done for %d/%d move.", moves_count, len(self.moves_to_analyze))
+                logger.info("Analysis done for %d/%d move.",
+                            moves_count, len(self.moves_to_analyze))
             else:
                 prev_stats = {}
                 prev_move_list = []
@@ -462,7 +494,8 @@ class BotAnalyzer:
                 (comment, lb_values, tr_values) = annotations.format_analysis(
                     node["stats"], move_list_to_display, None, self.board_size)
 
-                annotations.annotate_sgf(self.cursor, comment, lb_values, tr_values)
+                annotations.annotate_sgf(
+                    self.cursor, comment, lb_values, tr_values)
 
             for i in range(len(node["children"])):
                 child = node["children"][i]
@@ -520,14 +553,17 @@ class BotAnalyzer:
 
             self.do_variations(move_num)
             moves_count += 1
-            logger.info("Analyzed %d/%d mistakes.", moves_count, len(self.moves_to_variations))
+            logger.info("Analyzed %d/%d mistakes.", moves_count,
+                        len(self.moves_to_variations))
 
             self.save_to_file()
+            self.send_to_bibiweiqi()
 
         logger.info("Finished deep analysis of mistakes.")
 
     def run(self):
-        logger.info("Started analyzing file: %s", os.path.basename(self._path_to_sgf))
+        logger.info("Started analyzing file: %s",
+                    os.path.basename(self._path_to_sgf))
 
         self.parse_sgf_file()
         self.cursor = self.sgf_data.cursor()
@@ -545,7 +581,8 @@ class BotAnalyzer:
         finally:
             self.bot.stop()
 
-        logger.info("Finished analyzing file: %s", os.path.basename(self._path_to_sgf))
+        logger.info("Finished analyzing file: %s",
+                    os.path.basename(self._path_to_sgf))
 
 
 def process_path(path_string):
