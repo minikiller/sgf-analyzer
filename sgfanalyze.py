@@ -195,6 +195,8 @@ class BotAnalyzer:
         file_name = os.path.splitext(self._path_to_sgf)[0]
         file_name = f"{file_name}_{self._bot_config}.pdf"
         plt.savefig(file_name, dpi=200, format='pdf', bbox_inches='tight')
+        file_name = f"{file_name}_{self._bot_config}.png"
+        plt.savefig(file_name)
         plt.close()
 
     def add_moves_to_bot(self):
