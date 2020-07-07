@@ -167,7 +167,8 @@ class BotAnalyzer:
                           "Content-Type": "application/json"})
         # extracting data in json format
         data = r.json()
-        logger.info("send data to bibiweiqi result is ".format(data.message))
+        print(data)
+        logger.info("send data to bibiweiqi result is {}".format(data['message']))
 
     def graph_winrates(self):
         import matplotlib
@@ -377,6 +378,7 @@ class BotAnalyzer:
                 has_prev = True
 
                 self.save_to_file()
+                self.send_to_bibiweiqi()
                 self.graph_winrates()
 
                 if 'winrate' in stats \
@@ -450,6 +452,7 @@ class BotAnalyzer:
             expand(node, stats, filter_move_list(move_list))
             self.bot.pop_move_from_history(len(node['history']))
             self.save_to_file()
+            self.send_to_bibiweiqi()
 
         expand(tree, stats, move_list)
 
