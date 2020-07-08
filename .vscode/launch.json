@@ -5,10 +5,18 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Python: 当前文件",
+      "name": "Python: sgf",
       "type": "python",
       "request": "launch",
       "program": "${workspaceFolder}/sgfanalyze.py",
+      "args": ["2020-06-20_36.sgf", "--bot", "leela-zero"],
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Python: main",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/main.py",
       "args": ["2020-06-20_36.sgf", "--bot", "leela-zero"],
       "console": "integratedTerminal"
     }
