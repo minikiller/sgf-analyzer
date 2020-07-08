@@ -96,6 +96,22 @@ class BotAnalyzer:
 
         elif bot_settings['bot_type'] == 'leela-zero':
             return LeelaZeroCLI(**kwargs)
+    """sunlf added
+    """
+
+    def create(self):
+
+        kwargs = {'board_size': 19,
+                  'komi': 6.5,
+                  'handicap': 0}
+        bot_settings = BOTS[self._bot_config]
+        kwargs.update(bot_settings)
+
+        if bot_settings['bot_type'] == 'leela':
+            return LeelaCLI(**kwargs)
+
+        elif bot_settings['bot_type'] == 'leela-zero':
+            return LeelaZeroCLI(**kwargs)
 
     @property
     def board_size(self):
@@ -168,7 +184,8 @@ class BotAnalyzer:
         # extracting data in json format
         data = r.json()
         print(data)
-        logger.info("send data to bibiweiqi result is {}".format(data['message']))
+        logger.info(
+            "send data to bibiweiqi result is {}".format(data['message']))
 
     def graph_winrates(self):
         import matplotlib
