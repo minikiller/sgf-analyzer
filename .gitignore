@@ -7,3 +7,9 @@ __pycache__
 test_sgf/*_analyzed.sgf
 test_sgf/*_graph.pdf
 leela.log
+config.yaml
+.checkpoints/leela-zero/*
+*.pdf
+*.png
+*.log
+.DS_Store

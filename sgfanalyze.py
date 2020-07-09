@@ -164,6 +164,9 @@ class BotAnalyzer:
             data = "".join([line for line in sgf_file])
         self.sgf_data = SGFParser(data).parse()
 
+    def parse_sgf_data(self, data):
+        self.sgf_data = SGFParser(data).parse()
+
     def save_to_file(self):
         file_name, file_ext = os.path.splitext(self._path_to_sgf)
         path_to_save = f"{file_name}_{self._bot_config}{file_ext}"
@@ -253,11 +256,11 @@ class BotAnalyzer:
             self.bot.add_move_to_history('black', this_move)
 
         # SGF commands to add black or white stones, often used for setting up handicap and such
-        if 'AB' in self.cursor.node.keys(): # add black
+        if 'AB' in self.cursor.node.keys():  # add black
             for move in self.cursor.node['AB'].data:
                 self.bot.add_move_to_history('black', move)
 
-        if 'AW' in self.cursor.node.keys(): # add white
+        if 'AW' in self.cursor.node.keys():  # add white
             for move in self.cursor.node['AW'].data:
                 self.bot.add_move_to_history('white', move)
 
