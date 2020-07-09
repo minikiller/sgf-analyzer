@@ -20,7 +20,7 @@ class BaseCLI:
     """ Command Line Interface designed to work with GTP protocol."""
 
     def __init__(self, bot_type, executable, arguments,
-                 board_size=19, komi=6.5, handicap=0, time_per_move=60):
+                 board_size=19, komi=6.5, handicap=0, time_per_move=5):
         self._history = []
 
         self.process = None
@@ -154,6 +154,7 @@ class BaseCLI:
     def go_to_position(self):
         """Send all moves from history to GTP console"""
         self.clear_board()
+        print(self._history)
         self.send_command(self._history)
 
     def flip_winrate(self, wr):

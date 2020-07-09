@@ -6,6 +6,7 @@ import os
 from yaml import load
 from utils import convert_position, parse_position
 
+
 def parse_cmd_line():
     parser = argparse.ArgumentParser(argument_default=None)
 
@@ -17,6 +18,7 @@ def parse_cmd_line():
                         action='store_true', help="Skip variations analysis.")
 
     return parser.parse_args()
+
 
 def process_path(path_string):
     games = []
@@ -30,6 +32,7 @@ def process_path(path_string):
             games.append(path)
 
     return games
+
 
 with open(settings.PATH_TO_CONFIG) as yaml_stream:
     yaml_data = load(yaml_stream)
@@ -46,17 +49,36 @@ for game in game_list:
     queue.append(BotAnalyzer(game, cmd_args.bot))
 
 for game in queue:
-    game.bot=game.create()
+    game.bot = game.create()
+    game.begin()
+
+""" for game in queue:
+    game.bot = game.create()
     game.bot.start()
-    stdout, stderr = game.bot.genmove()
+    game.parse_sgf_file()
+    game.cursor = game.sgf_data.cursor()
+    move_num = -1
+    while not game.cursor.atEnd:
+        game.cursor.next()
+        move_num += 1
+        this_move = game.add_moves_to_bot()
+    game.bot.go_to_position()
+    for i in range(1):
+        stdout, stderr = game.bot.genmove()
 
-    # Drain and parse Leela stdout & stderr
-    stats, move_list = game.bot.parse_analysis(stdout, stderr)
+        # Drain and parse Leela stdout & stderr
+        stats, move_list = game.bot.parse_analysis(stdout, stderr)
 
-    if stats.get('winrate') and move_list:
-        best_move = convert_position(game.board_size, move_list[0]['pos'])
+        if stats.get('winrate') and move_list:
+            best_move = convert_position(19, move_list[0]['pos'])
 
-    print(best_move)
-    game.bot.stop()
+        print(best_move)
+        best_move = parse_position(19, best_move)
+        command = f"play {game.bot.whose_turn()} {best_move}"
+        print("play is {}".format(command))
+        # game.bot.send_command(command)
+        game.bot.add_move_to_history(game.bot.whose_turn(), best_move)
 
- 
+    game.bot.go_to_position()
+    game.save_to_file()
+    game.bot.stop() """

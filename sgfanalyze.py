@@ -237,7 +237,7 @@ class BotAnalyzer:
         file_name = os.path.splitext(self._path_to_sgf)[0]
         file_name = f"{file_name}_{self._bot_config}.pdf"
         plt.savefig(file_name, dpi=200, format='pdf', bbox_inches='tight')
-        file_name = f"{file_name}_{self._bot_config}.png"
+        file_name = f"{file_name}.png"
         plt.savefig(file_name)
         plt.close()
 
@@ -253,11 +253,11 @@ class BotAnalyzer:
             self.bot.add_move_to_history('black', this_move)
 
         # SGF commands to add black or white stones, often used for setting up handicap and such
-        if 'AB' in self.cursor.node.keys():
+        if 'AB' in self.cursor.node.keys(): # add black
             for move in self.cursor.node['AB'].data:
                 self.bot.add_move_to_history('black', move)
 
-        if 'AW' in self.cursor.node.keys():
+        if 'AW' in self.cursor.node.keys(): # add white
             for move in self.cursor.node['AW'].data:
                 self.bot.add_move_to_history('white', move)
 
@@ -395,7 +395,7 @@ class BotAnalyzer:
                 has_prev = True
 
                 self.save_to_file()
-                self.send_to_bibiweiqi()
+                # self.send_to_bibiweiqi()
                 self.graph_winrates()
 
                 if 'winrate' in stats \
@@ -580,6 +580,29 @@ class BotAnalyzer:
             self.send_to_bibiweiqi()
 
         logger.info("Finished deep analysis of mistakes.")
+
+    def begin(self):
+        logger.info("Started analyzing file: %s",
+                    os.path.basename(self._path_to_sgf))
+
+        self.parse_sgf_file()
+        self.cursor = self.sgf_data.cursor()
+
+        try:
+            self.prepare()
+            self.analyze_main_line()
+            # self.analyze_variations()
+
+        except KeyboardInterrupt:
+            pass
+
+        except:
+            logger.exception("Exception during analysis.")
+        finally:
+            self.bot.stop()
+
+        logger.info("Finished analyzing file: %s",
+                    os.path.basename(self._path_to_sgf))
 
     def run(self):
         logger.info("Started analyzing file: %s",
