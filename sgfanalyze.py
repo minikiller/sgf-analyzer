@@ -398,7 +398,7 @@ class BotAnalyzer:
                 has_prev = True
 
                 self.save_to_file()
-                # self.send_to_bibiweiqi()
+                self.send_to_bibiweiqi()
                 self.graph_winrates()
 
                 if 'winrate' in stats \
@@ -472,7 +472,7 @@ class BotAnalyzer:
             expand(node, stats, filter_move_list(move_list))
             self.bot.pop_move_from_history(len(node['history']))
             self.save_to_file()
-            self.send_to_bibiweiqi()
+            # self.send_to_bibiweiqi()
 
         expand(tree, stats, move_list)
 
@@ -580,7 +580,7 @@ class BotAnalyzer:
                         len(self.moves_to_variations))
 
             self.save_to_file()
-            self.send_to_bibiweiqi()
+            # self.send_to_bibiweiqi()
 
         logger.info("Finished deep analysis of mistakes.")
 

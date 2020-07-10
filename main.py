@@ -48,22 +48,24 @@ queue = []
 for game in game_list:
     queue.append(BotAnalyzer(game, cmd_args.bot))
 
-for game in queue:
-    game.bot = game.create()
-    game.begin()
-
 """ for game in queue:
+    game.bot = game.create()
+    game.begin() """
+
+for game in queue:
     game.bot = game.create()
     game.bot.start()
     game.parse_sgf_file()
     game.cursor = game.sgf_data.cursor()
     move_num = -1
-    while not game.cursor.atEnd:
-        game.cursor.next()
-        move_num += 1
-        this_move = game.add_moves_to_bot()
-    game.bot.go_to_position()
-    for i in range(1):
+    # while not game.cursor.atEnd:
+    #     game.cursor.next()
+    #     move_num += 1
+    #     this_move = game.add_moves_to_bot()
+    # game.bot.go_to_position()
+
+    
+    for i in range(20):
         stdout, stderr = game.bot.genmove()
 
         # Drain and parse Leela stdout & stderr
@@ -80,5 +82,5 @@ for game in queue:
         game.bot.add_move_to_history(game.bot.whose_turn(), best_move)
 
     game.bot.go_to_position()
-    game.save_to_file()
-    game.bot.stop() """
+    # game.save_to_file()
+    # game.bot.stop()
