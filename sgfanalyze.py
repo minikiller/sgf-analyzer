@@ -182,6 +182,8 @@ class BotAnalyzer:
         with open(path_to_save, "r") as f:
             data = f.read()
         d = {'analyse_data': data}
+        logger.info("saved data is {}".format(data))
+        logger.info("sgf data is {}".format(self.sgf_data))
         r = requests.post(url, data=json.dumps(d), verify=False, headers={
                           "Content-Type": "application/json"})
         # extracting data in json format
