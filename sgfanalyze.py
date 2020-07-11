@@ -177,19 +177,18 @@ class BotAnalyzer:
         file_name, file_ext = os.path.splitext(self._path_to_sgf)
         path_to_save = f"{file_name}_{self._bot_config}{file_ext}"
         kifu_id = path_to_save.split("_")[1]
-        logger.info("kifu id is {}".format(kifu_id))
+        # logger.info("kifu id is {}".format(kifu_id))
         url = 'https://localhost:5000/kifus/analyse/'+kifu_id
         with open(path_to_save, "r") as f:
             data = f.read()
         d = {'analyse_data': data}
-        logger.info("saved data is {}".format(data))
-        logger.info("sgf data is {}".format(self.sgf_data))
+        # logger.info("saved data is {}".format(data))
+        # logger.info("sgf data is {}".format(self.sgf_data))
         r = requests.post(url, data=json.dumps(d), verify=False, headers={
                           "Content-Type": "application/json"})
         # extracting data in json format
         data = r.json()
-        print(data)
-        logger.info(
+        logger.debug(
             "send data to bibiweiqi result is {}".format(data['message']))
 
     def graph_winrates(self):
