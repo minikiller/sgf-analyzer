@@ -178,7 +178,7 @@ class BotAnalyzer:
         path_to_save = f"{file_name}_{self._bot_config}{file_ext}"
         kifu_id = path_to_save.split("_")[1]
         logger.info("kifu id is {}".format(kifu_id))
-        url = 'https://bibiweiqi.com:5000/kifus/analyse/'+kifu_id
+        url = 'https://localhost:5000/kifus/analyse/'+kifu_id
         with open(path_to_save, "r") as f:
             data = f.read()
         d = {'analyse_data': data}
@@ -242,7 +242,9 @@ class BotAnalyzer:
         file_name = os.path.splitext(self._path_to_sgf)[0]
         file_name = f"{file_name}_{self._bot_config}.pdf"
         plt.savefig(file_name, dpi=200, format='pdf', bbox_inches='tight')
-        file_name = f"{file_name}.png"
+        file_name = os.path.splitext(self._path_to_sgf)[0]
+        flask_path = yaml_data['flask_path']
+        file_name = f"{flask_path}/{file_name}.png"
         plt.savefig(file_name)
         plt.close()
 
@@ -474,7 +476,7 @@ class BotAnalyzer:
             expand(node, stats, filter_move_list(move_list))
             self.bot.pop_move_from_history(len(node['history']))
             self.save_to_file()
-            # self.send_to_bibiweiqi()
+            self.send_to_bibiweiqi()
 
         expand(tree, stats, move_list)
 
@@ -582,7 +584,7 @@ class BotAnalyzer:
                         len(self.moves_to_variations))
 
             self.save_to_file()
-            # self.send_to_bibiweiqi()
+            self.send_to_bibiweiqi()
 
         logger.info("Finished deep analysis of mistakes.")
 
