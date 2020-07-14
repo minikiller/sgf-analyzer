@@ -1,3 +1,5 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
 import argparse
 import hashlib
 import os
@@ -14,6 +16,8 @@ from bot_engines import LeelaCLI, LeelaZeroCLI
 from log import logger, log_stream
 from sgflib import SGFParser, Node, Property
 from utils import convert_position
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 with open(settings.PATH_TO_CONFIG) as yaml_stream:
     yaml_data = load(yaml_stream)
@@ -403,7 +407,7 @@ class BotAnalyzer:
                 self.save_to_file()
                 self.send_to_bibiweiqi()
                 self.graph_winrates()
-
+                # 检查设置如果超过胜率则停止分析
                 if 'winrate' in stats \
                         and (1 - CONFIG['stop_on_winrate'] > stats['winrate']
                              or stats['winrate'] > CONFIG['stop_on_winrate']):
