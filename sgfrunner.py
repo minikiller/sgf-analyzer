@@ -16,8 +16,6 @@ from bot_engines import LeelaCLI, LeelaZeroCLI
 from log import logger, log_stream
 from sgflib import SGFParser, Node, Property
 from utils import convert_position
-import urllib3
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 with open(settings.PATH_TO_CONFIG) as yaml_stream:
     yaml_data = load(yaml_stream)
@@ -50,8 +48,8 @@ def retry_analysis(restarts):
 def parse_cmd_line():
     parser = argparse.ArgumentParser(argument_default=None)
 
-    parser.add_argument("path_to_sgf", nargs='+',
-                        help="List of SGF-files to analyze.")
+    # parser.add_argument("path_to_sgf", nargs='+',
+    #                     help="List of SGF-files to analyze.")
     parser.add_argument('-b', '--bot', default=BOTS['default'],
                         dest='bot', help="Settings from config.yaml to use.")
     parser.add_argument('--no-vars', dest='no_variations',
@@ -70,8 +68,8 @@ class BotException(Exception):
 
 
 class BotAnalyzer:
-    def __init__(self, path_to_sgf, bot_config):
-        self._path_to_sgf = path_to_sgf
+    def __init__(self, bot_config):
+        # self._path_to_sgf = path_to_sgf
         self._bot_config = bot_config
 
         self.sgf_data = None
@@ -86,7 +84,6 @@ class BotAnalyzer:
         self.best_moves = {}
         self.all_stats = {}
         self.all_move_lists = {}
-        self.warnList = {}
 
     def factory(self):
 
@@ -175,7 +172,6 @@ class BotAnalyzer:
     def save_to_file(self):
         file_name, file_ext = os.path.splitext(self._path_to_sgf)
         path_to_save = f"{file_name}_{self._bot_config}{file_ext}"
-        # path_to_save = f"{file_name}_{self._bot_config}{file_ext}"
         with open(path_to_save, mode='w', encoding='utf-8') as f:
             f.write(str(self.sgf_data))
 
@@ -205,7 +201,7 @@ class BotAnalyzer:
 
         if len(self.all_stats) <= 2:
             return
-        print("winrate get value is {}".format(self.all_stats))
+
         first_move_num = min(self.all_stats.keys())
         last_move_num = max(self.all_stats.keys())
         x = []
@@ -381,11 +377,9 @@ class BotAnalyzer:
                 if has_prev and delta <= -CONFIG['variations_threshold']:
                     self.moves_to_variations[move_num - 1] = True
 
-                if - delta > CONFIG['analyze_threshold']:
+                if -delta > CONFIG['analyze_threshold']:
                     logger.warning("Move %d: %s %s is a mistake (winrate dropped by %.2f%%)", move_num + 1,
                                    previous_player, convert_position(self.board_size, this_move), -delta * 100)
-                    self.warnList[convert_position(
-                        self.board_size, this_move)] = -delta * 100
 
                 next_game_move = self.next_move_pos()
 
@@ -411,7 +405,6 @@ class BotAnalyzer:
                 self.save_to_file()
                 self.send_to_bibiweiqi()
                 self.graph_winrates()
-
                 # 检查设置如果超过胜率则停止分析
                 if 'winrate' in stats \
                         and (1 - CONFIG['stop_on_winrate'] > stats['winrate']
@@ -594,10 +587,6 @@ class BotAnalyzer:
             self.save_to_file()
             self.send_to_bibiweiqi()
 
-        logger.info("warning is {}".format(self.warnList))
-        info = sorted(self.warnList.items(),
-                      key=lambda item: item[1], reverse=True)
-        logger.info("after sort is {}".format(info[:5]))
         logger.info("Finished deep analysis of mistakes.")
 
     def begin(self):
@@ -664,15 +653,12 @@ def process_path(path_string):
 if __name__ == '__main__':
     cmd_args = parse_cmd_line()
 
-    game_list = process_path(cmd_args.path_to_sgf)
+    # game_list = process_path(cmd_args.path_to_sgf)
 
-    logger.info('Found %s sgf-files to analyze.', len(game_list))
+    # logger.info('Found %s sgf-files to analyze.', len(game_list))
 
-    queue = []
-    for game in game_list:
-        queue.append(BotAnalyzer(game, cmd_args.bot))
+    
+    # for game in game_list:
+    # BotAnalyzer(cmd_args.bot)
 
-    for game in queue:
-        game.run()
-
-    logger.info('Analysis done for %s sgf-files.', len(game_list))
+    # logger.info('Analysis done for %s sgf-files.', len(game_list))
