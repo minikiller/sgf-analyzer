@@ -594,11 +594,33 @@ class BotAnalyzer:
             self.save_to_file()
             self.send_to_bibiweiqi()
 
+        self.sendTopDrops()
+        logger.info("Finished deep analysis of mistakes.")
+
+    # 统计最高掉胜率的五步棋
+
+    def sendTopDrops(self):
         logger.info("warning is {}".format(self.warnList))
         info = sorted(self.warnList.items(),
                       key=lambda item: item[1], reverse=True)
-        logger.info("after sort is {}".format(info[:5]))
-        logger.info("Finished deep analysis of mistakes.")
+        file_name, file_ext = os.path.splitext(self._path_to_sgf)
+        path_to_save = f"{file_name}_{self._bot_config}{file_ext}"
+        kifu_id = path_to_save.split("_")[1]
+        # logger.info("kifu id is {}".format(kifu_id))
+        url = 'https://localhost:5000/kifus/drops/' + kifu_id
+        _data = info[:5]
+        logger.info("sgf data is {}".format(_data))
+        d = {'drops_data': _data}
+        # logger.info("saved data is {}".format(data))
+        # logger.info("sgf data is {}".format(self.sgf_data))
+        r = requests.post(url, data=json.dumps(d), verify=False, headers={
+                          "Content-Type": "application/json"})
+        # extracting data in json format
+        data = r.json()
+        logger.debug(
+            "send data to bibiweiqi result is {}".format(data['message']))
+
+        # logger.info("after sort is {}".format(info[:5]))
 
     def begin(self):
         logger.info("Started analyzing file: %s",
