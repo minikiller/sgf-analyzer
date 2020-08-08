@@ -154,7 +154,7 @@ class BaseCLI:
     def go_to_position(self):
         """Send all moves from history to GTP console"""
         self.clear_board()
-        print(self._history)
+        # print(self._history)
         self.send_command(self._history)
 
     def flip_winrate(self, wr):
