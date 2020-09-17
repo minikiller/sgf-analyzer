@@ -1,9 +1,10 @@
 import sgflib
 from sgflib import Property, Node
-_path_to_sgf = "2020-06-26_68.sgf"
+_path_to_sgf = "2020-06-20_36.sgf"
 with open(_path_to_sgf, 'r', encoding="utf-8") as sgf_file:
     data = "".join([line for line in sgf_file])
 sgf_data = sgflib.SGFParser(data).parse()
+print(str(sgf_data))
 cursor = sgf_data.cursor()
 # 获得棋谱基本信息
 # print(type(cursor))

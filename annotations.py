@@ -88,13 +88,13 @@ def annotate_sgf(cursor, comment, LB_values, TR_values):
         else:
             c_node.add_property(Property('C', [comment]))
 
-    if LB_values:
+    if LB_values: #LB means label
         if 'LB' in c_node:
             c_node['LB'].extend(LB_values)
         else:
             c_node.add_property(Property('LB', LB_values))
 
-    if TR_values:
+    if TR_values: # TR means triangle
         if 'TR' in c_node:
             c_node['TR'].extend(TR_values)
         else:

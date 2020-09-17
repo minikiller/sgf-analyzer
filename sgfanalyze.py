@@ -8,7 +8,7 @@ import requests
 import json
 
 import numpy as np
-from yaml import load
+from yaml import load,FullLoader
 
 import annotations
 import settings
@@ -20,7 +20,7 @@ import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 with open(settings.PATH_TO_CONFIG) as yaml_stream:
-    yaml_data = load(yaml_stream)
+    yaml_data = load(yaml_stream, Loader=FullLoader)
 
 CONFIG = yaml_data['config']
 BOTS = yaml_data['bots']
